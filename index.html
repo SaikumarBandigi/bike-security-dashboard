@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bike Anti-Theft</title>
   <!-- Font Awesome for power icon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
@@ -144,6 +145,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="container">
@@ -160,6 +162,7 @@
     const indicatorBox = document.getElementById('indicatorBox');
 
     let isArmed = true;
+    const ESP32_IP = "192.168.1.7";
 
     function updateUI() {
       if (isArmed) {
@@ -181,37 +184,37 @@
 
     function setStatus(armed) {
       indicatorBox.textContent = 'Updating...';
-      fetch(`https://bikeantitheftbackend-production.up.railway.app/api/anti-theft/setStatus?armed=${armed}`, {
+      fetch(`http://${ESP32_IP}/setStatus?armed=${armed}`, {
         method: 'POST'
       })
-      .then(res => {
-        if (!res.ok) throw new Error('Status not updated');
-        return res.text();
-      })
-      .then(() => {
-        isArmed = armed;
-        updateUI();
-      })
-      .catch(err => {
-        console.error(err);
-        indicatorBox.textContent = '⚠️ Failed to update';
-      });
+        .then(res => {
+          if (!res.ok) throw new Error('Status not updated');
+          return res.text();
+        })
+        .then(() => {
+          isArmed = armed;
+          updateUI();
+        })
+        .catch(err => {
+          console.error(err);
+          indicatorBox.textContent = '⚠️ Failed to update';
+        });
     }
 
     function getStatus() {
-      fetch('https://bikeantitheftbackend-production.up.railway.app/api/anti-theft/getStatus')
-      .then(res => {
-        if (!res.ok) throw new Error('Fetch failed');
-        return res.json();
-      })
-      .then(armed => {
-        isArmed = armed;
-        updateUI();
-      })
-      .catch(err => {
-        console.error(err);
-        indicatorBox.textContent = '⚠️ Unable to connect';
-      });
+      fetch(`http://${ESP32_IP}/getStatus`)
+        .then(res => {
+          if (!res.ok) throw new Error('Fetch failed');
+          return res.text();
+        })
+        .then(text => {
+          isArmed = (text === 'true');
+          updateUI();
+        })
+        .catch(err => {
+          console.error(err);
+          indicatorBox.textContent = '⚠️ Unable to connect';
+        });
     }
 
     powerButton.addEventListener('click', () => {
@@ -223,4 +226,5 @@
   </script>
 
 </body>
+
 </html>
