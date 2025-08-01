@@ -162,7 +162,6 @@
     const indicatorBox = document.getElementById('indicatorBox');
 
     let isArmed = true;
-    const ESP32_IP = "192.168.1.7";
 
     function updateUI() {
       if (isArmed) {
@@ -184,7 +183,7 @@
 
     function setStatus(armed) {
       indicatorBox.textContent = 'Updating...';
-      fetch(`http://${ESP32_IP}/setStatus?armed=${armed}`, {
+      fetch(`http://192.168.1.7/setStatus?armed=${armed}`, {
         method: 'POST'
       })
         .then(res => {
@@ -202,13 +201,13 @@
     }
 
     function getStatus() {
-      fetch(`http://${ESP32_IP}/getStatus`)
+      fetch('http://192.168.1.7/getStatus')
         .then(res => {
           if (!res.ok) throw new Error('Fetch failed');
-          return res.text();
+          return res.json();
         })
-        .then(text => {
-          isArmed = (text === 'true');
+        .then(armed => {
+          isArmed = armed;
           updateUI();
         })
         .catch(err => {
